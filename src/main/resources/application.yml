@@ -1,0 +1,14 @@
+
+#微信配置start
+wx:
+  pay:
+    appID: wx30cf51d15a8dc888d
+    key: TaTDShAF7N6eOKcxZ8dRIBcfLp4b1c6p1
+    mchID: 14859239002
+    httpConnectTimeoutMs: 6000
+    httpReadTimeoutMs: 10000
+    certPath:
+    #appSecret: daf74348fae8e454c9db16229de053d6
+
+
+#微信配置end
