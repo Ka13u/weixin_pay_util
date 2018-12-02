@@ -8,7 +8,7 @@ wx:
     httpConnectTimeoutMs: 6000
     httpReadTimeoutMs: 10000
     certPath:
-    notifyUrl: http://www.kabu.com/wxpay/payNofity
+    notifyUrl: http://www.kabu.com/wxpay/notifyUrl
     #appSecret: daf74348fae8e454c9db16229de053d6
 
 

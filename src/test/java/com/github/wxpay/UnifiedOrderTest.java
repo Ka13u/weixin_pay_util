@@ -1,6 +1,6 @@
 package com.github.wxpay;
 
-import com.github.wxpay.service.WeixinAPIService;
+import com.github.wxpay.service.WeixinPayService;
 import com.github.wxpay.utils.WXPayConfig;
 import com.github.wxpay.utils.ZXingUtils;
 import org.junit.Test;
@@ -24,17 +24,17 @@ public class UnifiedOrderTest{
 
     @Test
     public void testOrder() throws Exception {
-        WeixinAPIService service = new WeixinAPIService(wxPayConfig,false);
+        WeixinPayService service = new WeixinPayService(wxPayConfig,false);
 
         Map<String, String> data = new HashMap<String, String>();
         data.put("body", "腾讯充值中心-QQ会员充值");
-        data.put("out_trade_no", "2016090910595900000458");
+        data.put("out_trade_no", "2016090910595900000459");
         data.put("device_info", "");
         data.put("fee_type", "CNY");
         data.put("total_fee", "1");    //单位 分
         data.put("notify_url", "http://www.example.com/wxpay/notify");
         data.put("spbill_create_ip", "123.123.123.123");
-        data.put("trade_type", "NATIVE");  // 此处指定为扫码支付
+        data.put("trade_type", "NATIVE");  // 扫码支付
         data.put("product_id", "1");
 
         try {
@@ -43,7 +43,7 @@ public class UnifiedOrderTest{
             /**
              * 判断返回的return_code、result_code,再进行业务逻辑操作
              */
-            if(resp.get("code_url") != null){    //生成支付二维码
+            if(resp.get("trade_type").equals("NATIVE") && resp.get("code_url") != null){    //扫码支付生成支付二维码
                 ZXingUtils.writeQrCode(resp.get("code_url"),"D:\\");
             }
         } catch (Exception e) {

@@ -1,7 +1,5 @@
 package com.github.wxpay.utils;
 
-import org.apache.commons.codec.Charsets;
-
 import java.io.*;
 import java.nio.charset.Charset;
 

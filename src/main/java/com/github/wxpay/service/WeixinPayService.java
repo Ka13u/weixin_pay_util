@@ -9,9 +9,10 @@ import java.util.Map;
 
 /**
  * Created by KaBu on 2018/11/30.
+ * 基于V3.0.9
  */
 @Component
-public class WeixinAPIService {
+public class WeixinPayService {
 
     private WXPayConfig config;
     private SignType signType;
@@ -19,22 +20,22 @@ public class WeixinAPIService {
     private String notifyUrl;
     private WXPayRequest wxPayRequest;
 
-    public WeixinAPIService() {
+    public WeixinPayService() {
     }
 
-    public WeixinAPIService(final WXPayConfig config) throws Exception {
+    public WeixinPayService(final WXPayConfig config) throws Exception {
         this(config, null, false);
     }
 
-    public WeixinAPIService(final WXPayConfig config, final boolean useSandbox) throws Exception{
+    public WeixinPayService(final WXPayConfig config, final boolean useSandbox) throws Exception{
         this(config, null, useSandbox);
     }
 
-    public WeixinAPIService(final WXPayConfig config, final String notifyUrl) throws Exception {
+    public WeixinPayService(final WXPayConfig config, final String notifyUrl) throws Exception {
         this(config, notifyUrl, false);
     }
 
-    public WeixinAPIService(final WXPayConfig config, final String notifyUrl, final boolean useSandbox) throws Exception {
+    public WeixinPayService(final WXPayConfig config, final String notifyUrl, final boolean useSandbox) throws Exception {
         this.config = config;
         this.notifyUrl = notifyUrl;
         this.useSandbox = useSandbox;
@@ -60,11 +61,10 @@ public class WeixinAPIService {
 
 
     /**
-     * 支付回调
+     * 支付回调接口
      * @param request
      */
     public void payNofity(HttpServletRequest request) throws Exception {
-
         String xmlStr = IOUtils.toString(request.getInputStream());
         Map<String, String> map = XmlConvertUtils.xmlToMap(xmlStr);
         System.out.println(map);
@@ -92,6 +92,69 @@ public class WeixinAPIService {
     }
 
 
+    /**
+     * 作用：查询订单接口
+     * @param reqData 请求数据
+     * @return API返回数据
+     * @throws Exception
+     */
+    public Map<String, String> orderQuery(Map<String, String> reqData) throws Exception {
+        return this.orderQuery(reqData, config.getHttpConnectTimeoutMs(), this.config.getHttpReadTimeoutMs());
+    }
+
+
+    /**
+     * 作用：申请退款接口
+     * 其他：需要证书
+     * @param reqData 请求数据
+     * @return API返回数据
+     * @throws Exception
+     */
+    public Map<String, String> refund(Map<String, String> reqData) throws Exception {
+        return this.refund(reqData, this.config.getHttpConnectTimeoutMs(), this.config.getHttpReadTimeoutMs());
+    }
+
+
+    /**
+     * 作用：申请退款
+     * @param reqData 请求数据
+     * @param connectTimeoutMs 连接超时时间，单位是毫秒
+     * @param readTimeoutMs 读超时时间，单位是毫秒
+     * @return API返回数据
+     * @throws Exception
+     */
+    public Map<String, String> refund(Map<String, String> reqData, int connectTimeoutMs, int readTimeoutMs) throws Exception {
+        String url;
+        if (this.useSandbox) {
+            url = WXPayConstants.SANDBOX_REFUND_URL_SUFFIX;
+        }
+        else {
+            url = WXPayConstants.REFUND_URL_SUFFIX;
+        }
+        String respXml = this.sendRequest(WXPayConstants.DOMAIN_API,url, this.fillRequestData(reqData), connectTimeoutMs, readTimeoutMs,true);
+        return this.processResponseXml(respXml);
+    }
+
+    /**
+     * 作用：查询订单<br>
+     * @param reqData 请求数据
+     * @param connectTimeoutMs 连接超时时间，单位是毫秒
+     * @param readTimeoutMs 读超时时间，单位是毫秒
+     * @return API返回数据
+     * @throws Exception
+     */
+    public Map<String, String> orderQuery(Map<String, String> reqData, int connectTimeoutMs, int readTimeoutMs) throws Exception {
+        String url;
+        if (this.useSandbox) {
+            url = WXPayConstants.SANDBOX_ORDERQUERY_URL_SUFFIX;
+        }
+        else {
+            url = WXPayConstants.ORDERQUERY_URL_SUFFIX;
+        }
+        String respXml = this.sendRequest(WXPayConstants.DOMAIN_API,url, this.fillRequestData(reqData), connectTimeoutMs, readTimeoutMs,false);
+        return this.processResponseXml(respXml);
+    }
+
 
     /**
      * 作用：统一下单
@@ -101,7 +164,7 @@ public class WeixinAPIService {
      * @return API返回数据
      * @throws Exception
      */
-    private Map<String, String> unifiedOrder(Map<String, String> reqData,  int connectTimeoutMs, int readTimeoutMs) throws Exception {
+    public Map<String, String> unifiedOrder(Map<String, String> reqData,  int connectTimeoutMs, int readTimeoutMs) throws Exception {
         String url;
         if (this.useSandbox) {
             url = WXPayConstants.SANDBOX_UNIFIEDORDER_URL_SUFFIX;
@@ -112,7 +175,7 @@ public class WeixinAPIService {
         if(this.notifyUrl != null) {
             reqData.put("notify_url", this.notifyUrl);
         }
-        String respXml = this.sendRequest(WXPayConstants.DOMAIN_API,url, this.fillRequestData(reqData), connectTimeoutMs, readTimeoutMs);
+        String respXml = this.sendRequest(WXPayConstants.DOMAIN_API,url, this.fillRequestData(reqData), connectTimeoutMs, readTimeoutMs,false);
         return this.processResponseXml(respXml);
     }
 
@@ -126,10 +189,10 @@ public class WeixinAPIService {
      * @throws Exception
      */
     public String sendRequest(String domain,String urlSuffix, Map<String, String> reqData,
-                                     int connectTimeoutMs, int readTimeoutMs) throws Exception {
+                                     int connectTimeoutMs, int readTimeoutMs,boolean useCert) throws Exception {
         String reqBody = XmlConvertUtils.mapToXml(reqData);
 
-        return this.wxPayRequest.sendRequest(domain,urlSuffix, reqBody, connectTimeoutMs, readTimeoutMs,false);
+        return this.wxPayRequest.sendRequest(domain,urlSuffix, reqBody, connectTimeoutMs, readTimeoutMs,useCert);
     }
 
 

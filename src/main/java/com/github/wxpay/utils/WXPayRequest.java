@@ -78,36 +78,24 @@ public class WXPayRequest {
             sslContext.init(kmf.getKeyManagers(), null, new SecureRandom());
 
             SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
-                    sslContext,
-                    new String[]{"TLSv1"},
-                    null,
-                    new DefaultHostnameVerifier());
+                    sslContext,new String[]{"TLSv1"},null,new DefaultHostnameVerifier());
 
             connManager = new BasicHttpClientConnectionManager(
                     RegistryBuilder.<ConnectionSocketFactory>create()
                             .register("http", PlainConnectionSocketFactory.getSocketFactory())
                             .register("https", sslConnectionSocketFactory)
-                            .build(),
-                    null,
-                    null,
-                    null
-            );
+                            .build(),null,null,null);
         }
         else {
             connManager = new BasicHttpClientConnectionManager(
                     RegistryBuilder.<ConnectionSocketFactory>create()
                             .register("http", PlainConnectionSocketFactory.getSocketFactory())
                             .register("https", SSLConnectionSocketFactory.getSocketFactory())
-                            .build(),
-                    null,
-                    null,
-                    null
-            );
+                            .build(),null,null,null);
         }
 
         HttpClient httpClient = HttpClientBuilder.create()
-                .setConnectionManager(connManager)
-                .build();
+                .setConnectionManager(connManager).build();
 
         String url = "https://" + domain + urlSuffix;
         HttpPost httpPost = new HttpPost(url);
