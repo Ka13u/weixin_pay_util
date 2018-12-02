@@ -7,7 +7,8 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
@@ -16,7 +17,7 @@ import java.util.Hashtable;
  * Created by KaBu on 2018/12/2.
  * 生产二维码码工具类
  */
-public class ZXingUtil {
+public class ZXingUtils {
 
 
     /**
@@ -44,8 +45,8 @@ public class ZXingUtil {
 
         // 生成二维码
         String fileName = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
-        File outputFile = new File(outputPath + "/" + fileName);     //指定输出路径
-        MatrixToImageWriter.writeToFile(bitMatrix,format,outputFile);
+        Path path = Paths.get(outputPath + "/" + fileName + "." + format);
+        MatrixToImageWriter.writeToPath(bitMatrix,format,path);
     }
 
 }

@@ -3,7 +3,8 @@ package com.github.wxpay.utils;
 import org.apache.http.client.HttpClient;
 
 /**
- * 常量
+ * Created by KaBu on 2018/12/1.
+ * 支付常量
  */
 public class WXPayConstants {
 

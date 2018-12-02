@@ -2,12 +2,16 @@ package com.github.wxpay.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -22,7 +26,7 @@ import java.util.*;
 
 import com.github.wxpay.utils.WXPayConstants.SignType;
 
-public class WXPayUtil {
+public class XmlConvertUtils {
 
     private static final String SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -38,7 +42,7 @@ public class WXPayUtil {
     public static Map<String, String> xmlToMap(String strXML) throws Exception {
         try {
             Map<String, String> data = new HashMap<String, String>();
-            DocumentBuilder documentBuilder = XmlUtil.newDocumentBuilder();
+            DocumentBuilder documentBuilder = newDocumentBuilder();
             InputStream stream = new ByteArrayInputStream(strXML.getBytes("UTF-8"));
             org.w3c.dom.Document doc = documentBuilder.parse(stream);
             doc.getDocumentElement().normalize();
@@ -57,7 +61,7 @@ public class WXPayUtil {
             }
             return data;
         } catch (Exception ex) {
-            WXPayUtil.getLogger().warn("Invalid XML, can not convert to map. Error message: {}. XML content: {}", ex.getMessage(), strXML);
+            XmlConvertUtils.getLogger().warn("Invalid XML, can not convert to map. Error message: {}. XML content: {}", ex.getMessage(), strXML);
             throw ex;
         }
 
@@ -71,7 +75,7 @@ public class WXPayUtil {
      * @throws Exception
      */
     public static String mapToXml(Map<String, String> data) throws Exception {
-        org.w3c.dom.Document document = XmlUtil.newDocument();
+        org.w3c.dom.Document document = newDocument();
         org.w3c.dom.Element root = document.createElement("xml");
         document.appendChild(root);
         for (String key: data.keySet()) {
@@ -287,6 +291,23 @@ public class WXPayUtil {
      */
     public static long getCurrentTimestampMs() {
         return System.currentTimeMillis();
+    }
+
+    public static DocumentBuilder newDocumentBuilder() throws ParserConfigurationException {
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        documentBuilderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        documentBuilderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        documentBuilderFactory.setXIncludeAware(false);
+        documentBuilderFactory.setExpandEntityReferences(false);
+
+        return documentBuilderFactory.newDocumentBuilder();
+    }
+
+    public static Document newDocument() throws ParserConfigurationException {
+        return newDocumentBuilder().newDocument();
     }
 
 }

@@ -1,13 +1,10 @@
 package com.github.wxpay.service;
 
-import com.github.wxpay.utils.WXPayConfig;
-import com.github.wxpay.utils.WXPayConstants;
+import com.github.wxpay.utils.*;
 import com.github.wxpay.utils.WXPayConstants.SignType;
-import com.github.wxpay.utils.WXPayRequest;
-import com.github.wxpay.utils.WXPayUtil;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
@@ -15,7 +12,6 @@ import java.util.Map;
  */
 @Component
 public class WeixinAPIService {
-
 
     private WXPayConfig config;
     private SignType signType;
@@ -52,7 +48,7 @@ public class WeixinAPIService {
     }
 
     /**
-     * 作用：统一下单接口
+     * 统一下单接口
      * @param reqData 请求数据
      * @return API返回数据
      * @throws Exception
@@ -62,6 +58,41 @@ public class WeixinAPIService {
         return this.unifiedOrder(reqData, config.getHttpConnectTimeoutMs(), this.config.getHttpReadTimeoutMs());
     }
 
+
+    /**
+     * 支付回调
+     * @param request
+     */
+    public void payNofity(HttpServletRequest request) throws Exception {
+
+        String xmlStr = IOUtils.toString(request.getInputStream());
+        Map<String, String> map = XmlConvertUtils.xmlToMap(xmlStr);
+        System.out.println(map);
+
+        if (isResponseSignatureValid(map)) {
+            String return_code = map.get("return_code");
+            if(WXPayConstants.SUCCESS.equals(return_code)){//交易成功
+
+                //需验证该通知数据中的out_trade_no是否为商户系统中创建的订单号
+                // TODO: 2018/12/2
+
+                //判断total_fee是否确实为该订单的实际金额（即商户订单创建时的金额）
+                // TODO: 2018/12/2
+
+                //通过判断，进行下一步逻辑操作
+                // TODO: 2018/12/2
+
+            }
+        } else {
+            throw new Exception(String.format("Invalid sign value in XML: %s", xmlStr));
+        }
+        //成功逻辑
+        // TODO: 2018/12/2
+
+    }
+
+
+
     /**
      * 作用：统一下单
      * @param reqData 请求数据
@@ -70,7 +101,7 @@ public class WeixinAPIService {
      * @return API返回数据
      * @throws Exception
      */
-    public Map<String, String> unifiedOrder(Map<String, String> reqData,  int connectTimeoutMs, int readTimeoutMs) throws Exception {
+    private Map<String, String> unifiedOrder(Map<String, String> reqData,  int connectTimeoutMs, int readTimeoutMs) throws Exception {
         String url;
         if (this.useSandbox) {
             url = WXPayConstants.SANDBOX_UNIFIEDORDER_URL_SUFFIX;
@@ -81,12 +112,12 @@ public class WeixinAPIService {
         if(this.notifyUrl != null) {
             reqData.put("notify_url", this.notifyUrl);
         }
-        String respXml = this.requestWithoutCert(url, this.fillRequestData(reqData), connectTimeoutMs, readTimeoutMs);
+        String respXml = this.sendRequest(WXPayConstants.DOMAIN_API,url, this.fillRequestData(reqData), connectTimeoutMs, readTimeoutMs);
         return this.processResponseXml(respXml);
     }
 
     /**
-     * 不需要证书的请求
+     * 发起请求
      * @param urlSuffix url前缀
      * @param reqData 请求数据
      * @param connectTimeoutMs 超时时间，单位毫秒
@@ -94,13 +125,11 @@ public class WeixinAPIService {
      * @return API返回数据
      * @throws Exception
      */
-    public String requestWithoutCert(String urlSuffix, Map<String, String> reqData,
+    public String sendRequest(String domain,String urlSuffix, Map<String, String> reqData,
                                      int connectTimeoutMs, int readTimeoutMs) throws Exception {
-        String msgUUID = reqData.get("nonce_str");
-        String reqBody = WXPayUtil.mapToXml(reqData);
+        String reqBody = XmlConvertUtils.mapToXml(reqData);
 
-        String resp = this.wxPayRequest.requestWithoutCert(urlSuffix, msgUUID, reqBody, connectTimeoutMs, readTimeoutMs);
-        return resp;
+        return this.wxPayRequest.sendRequest(domain,urlSuffix, reqBody, connectTimeoutMs, readTimeoutMs,false);
     }
 
 
@@ -113,13 +142,13 @@ public class WeixinAPIService {
     public Map<String, String> fillRequestData(Map<String, String> reqData) throws Exception {
         reqData.put("appid", config.getAppID());
         reqData.put("mch_id", config.getMchID());
-        reqData.put("nonce_str", WXPayUtil.generateNonceStr());
+        reqData.put("nonce_str", XmlConvertUtils.generateNonceStr());
         if (SignType.MD5.equals(this.signType)) {
             reqData.put("sign_type", WXPayConstants.MD5);
         }else if (SignType.HMACSHA256.equals(this.signType)) {
             reqData.put("sign_type", WXPayConstants.HMACSHA256);
         }
-        reqData.put("sign", WXPayUtil.generateSignature(reqData, config.getKey(), this.signType));
+        reqData.put("sign", XmlConvertUtils.generateSignature(reqData, config.getKey(), this.signType));
         return reqData;
     }
 
@@ -133,7 +162,7 @@ public class WeixinAPIService {
     public Map<String, String> processResponseXml(String xmlStr) throws Exception {
         String RETURN_CODE = "return_code";
         String return_code;
-        Map<String, String> respData = WXPayUtil.xmlToMap(xmlStr);
+        Map<String, String> respData = XmlConvertUtils.xmlToMap(xmlStr);
         if (respData.containsKey(RETURN_CODE)) {
             return_code = respData.get(RETURN_CODE);
         }
@@ -166,11 +195,14 @@ public class WeixinAPIService {
      */
     public boolean isResponseSignatureValid(Map<String, String> reqData) throws Exception {
         // 返回数据的签名方式和请求中给定的签名方式是一致的
-        return WXPayUtil.isSignatureValid(reqData, this.config.getKey(), this.signType);
+        return XmlConvertUtils.isSignatureValid(reqData, this.config.getKey(), this.signType);
     }
 
 
-
+    /**
+     * 检验配置
+     * @throws Exception
+     */
     private void checkWXPayConfig() throws Exception {
         if (this.config == null) {
             throw new Exception("config is null");

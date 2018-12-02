@@ -2,7 +2,7 @@ package com.github.wxpay;
 
 import com.github.wxpay.service.WeixinAPIService;
 import com.github.wxpay.utils.WXPayConfig;
-import com.github.wxpay.utils.ZXingUtil;
+import com.github.wxpay.utils.ZXingUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class UnifiedOrderTest{
 
         Map<String, String> data = new HashMap<String, String>();
         data.put("body", "腾讯充值中心-QQ会员充值");
-        data.put("out_trade_no", "2016090910595900000014");
+        data.put("out_trade_no", "2016090910595900000458");
         data.put("device_info", "");
         data.put("fee_type", "CNY");
         data.put("total_fee", "1");    //单位 分
@@ -40,8 +40,11 @@ public class UnifiedOrderTest{
         try {
             Map<String, String> resp = service.unifiedOrder(data);
             System.out.println(resp);
+            /**
+             * 判断返回的return_code、result_code,再进行业务逻辑操作
+             */
             if(resp.get("code_url") != null){    //生成支付二维码
-                ZXingUtil.writeQrCode(resp.get("code_url"),"D:\\");
+                ZXingUtils.writeQrCode(resp.get("code_url"),"D:\\");
             }
         } catch (Exception e) {
             e.printStackTrace();
