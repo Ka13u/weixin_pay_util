@@ -23,6 +23,9 @@ public class WeixinAPIService {
     private String notifyUrl;
     private WXPayRequest wxPayRequest;
 
+    public WeixinAPIService() {
+    }
+
     public WeixinAPIService(final WXPayConfig config) throws Exception {
         this(config, null, false);
     }
@@ -48,9 +51,6 @@ public class WeixinAPIService {
         this.wxPayRequest = new WXPayRequest(config);
     }
 
-    public WeixinAPIService() {
-    }
-
     /**
      * 作用：统一下单接口
      * @param reqData 请求数据
@@ -58,6 +58,7 @@ public class WeixinAPIService {
      * @throws Exception
      */
     public Map<String, String> unifiedOrder(Map<String, String> reqData) throws Exception {
+        checkWXPayConfig();
         return this.unifiedOrder(reqData, config.getHttpConnectTimeoutMs(), this.config.getHttpReadTimeoutMs());
     }
 
@@ -101,7 +102,6 @@ public class WeixinAPIService {
         String resp = this.wxPayRequest.requestWithoutCert(urlSuffix, msgUUID, reqBody, connectTimeoutMs, readTimeoutMs);
         return resp;
     }
-
 
 
     /**
@@ -180,9 +180,6 @@ public class WeixinAPIService {
         }
         if (this.config.getMchID() == null || this.config.getMchID().trim().length() == 0) {
             throw new Exception("mchid in config is empty");
-        }
-        if (this.config.getCertStream() == null) {
-            throw new Exception("cert stream in config is empty");
         }
         if (this.config.getHttpConnectTimeoutMs() < 10) {
             throw new Exception("http connect timeout is too small");

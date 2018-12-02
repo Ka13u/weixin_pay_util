@@ -38,7 +38,7 @@ public class WXPayUtil {
     public static Map<String, String> xmlToMap(String strXML) throws Exception {
         try {
             Map<String, String> data = new HashMap<String, String>();
-            DocumentBuilder documentBuilder = WXPayXmlUtil.newDocumentBuilder();
+            DocumentBuilder documentBuilder = XmlUtil.newDocumentBuilder();
             InputStream stream = new ByteArrayInputStream(strXML.getBytes("UTF-8"));
             org.w3c.dom.Document doc = documentBuilder.parse(stream);
             doc.getDocumentElement().normalize();
@@ -71,7 +71,7 @@ public class WXPayUtil {
      * @throws Exception
      */
     public static String mapToXml(Map<String, String> data) throws Exception {
-        org.w3c.dom.Document document = WXPayXmlUtil.newDocument();
+        org.w3c.dom.Document document = XmlUtil.newDocument();
         org.w3c.dom.Element root = document.createElement("xml");
         document.appendChild(root);
         for (String key: data.keySet()) {

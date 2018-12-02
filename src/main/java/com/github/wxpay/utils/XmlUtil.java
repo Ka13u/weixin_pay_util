@@ -10,7 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 /**
  * 2018/7/3
  */
-public final class WXPayXmlUtil {
+public final class XmlUtil {
     public static DocumentBuilder newDocumentBuilder() throws ParserConfigurationException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
