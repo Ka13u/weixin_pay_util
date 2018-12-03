@@ -37,7 +37,7 @@ public class WXPayConstants {
 //    public static final String REVERSE_URL_SUFFIX      = "/secapi/pay/reverse";
 //    public static final String CLOSEORDER_URL_SUFFIX   = "/pay/closeorder";
     public static final String REFUND_URL_SUFFIX       = "/secapi/pay/refund";
-//    public static final String REFUNDQUERY_URL_SUFFIX  = "/pay/refundquery";
+    public static final String REFUNDQUERY_URL_SUFFIX  = "/pay/refundquery";
 //    public static final String DOWNLOADBILL_URL_SUFFIX = "/pay/downloadbill";
 //    public static final String REPORT_URL_SUFFIX       = "/payitil/report";
 //    public static final String SHORTURL_URL_SUFFIX     = "/tools/shorturl";
@@ -50,7 +50,7 @@ public class WXPayConstants {
 //    public static final String SANDBOX_REVERSE_URL_SUFFIX      = "/sandboxnew/secapi/pay/reverse";
 //    public static final String SANDBOX_CLOSEORDER_URL_SUFFIX   = "/sandboxnew/pay/closeorder";
     public static final String SANDBOX_REFUND_URL_SUFFIX       = "/sandboxnew/secapi/pay/refund";
-//    public static final String SANDBOX_REFUNDQUERY_URL_SUFFIX  = "/sandboxnew/pay/refundquery";
+    public static final String SANDBOX_REFUNDQUERY_URL_SUFFIX  = "/sandboxnew/pay/refundquery";
 //    public static final String SANDBOX_DOWNLOADBILL_URL_SUFFIX = "/sandboxnew/pay/downloadbill";
 //    public static final String SANDBOX_REPORT_URL_SUFFIX       = "/sandboxnew/payitil/report";
 //    public static final String SANDBOX_SHORTURL_URL_SUFFIX     = "/sandboxnew/tools/shorturl";

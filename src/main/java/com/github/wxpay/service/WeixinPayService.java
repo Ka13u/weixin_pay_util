@@ -10,6 +10,7 @@ import java.util.Map;
 /**
  * Created by KaBu on 2018/11/30.
  * 基于V3.0.9
+ * 场景：刷卡支付、公共号支付、扫码支付、APP支付
  */
 @Component
 public class WeixinPayService {
@@ -112,6 +113,37 @@ public class WeixinPayService {
      */
     public Map<String, String> refund(Map<String, String> reqData) throws Exception {
         return this.refund(reqData, this.config.getHttpConnectTimeoutMs(), this.config.getHttpReadTimeoutMs());
+    }
+
+    /**
+     * 作用：退款查询接口
+     * @param reqData 请求数据
+     * @return API返回数据
+     * @throws Exception
+     */
+    public Map<String, String> refundQuery(Map<String, String> reqData) throws Exception {
+        return this.refundQuery(reqData, this.config.getHttpConnectTimeoutMs(), this.config.getHttpReadTimeoutMs());
+    }
+
+
+    /**
+     * 作用：退款查询
+     * @param reqData 请求数据
+     * @param connectTimeoutMs 连接超时时间，单位是毫秒
+     * @param readTimeoutMs 读超时时间，单位是毫秒
+     * @return API返回数据
+     * @throws Exception
+     */
+    public Map<String, String> refundQuery(Map<String, String> reqData, int connectTimeoutMs, int readTimeoutMs) throws Exception {
+        String url;
+        if (this.useSandbox) {
+            url = WXPayConstants.SANDBOX_REFUNDQUERY_URL_SUFFIX;
+        }
+        else {
+            url = WXPayConstants.REFUNDQUERY_URL_SUFFIX;
+        }
+        String respXml = this.sendRequest(WXPayConstants.DOMAIN_API,url, this.fillRequestData(reqData), connectTimeoutMs, readTimeoutMs,false);
+        return this.processResponseXml(respXml);
     }
 
 
