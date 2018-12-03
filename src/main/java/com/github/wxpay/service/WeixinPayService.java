@@ -103,6 +103,16 @@ public class WeixinPayService {
         return this.orderQuery(reqData, config.getHttpConnectTimeoutMs(), this.config.getHttpReadTimeoutMs());
     }
 
+    /**
+     * 作用：关闭订单接口
+     * @param reqData 请求数据
+     * @return API返回数据
+     * @throws Exception
+     */
+    public Map<String, String> closeOrder(Map<String, String> reqData) throws Exception {
+        return this.closeOrder(reqData, config.getHttpConnectTimeoutMs(), this.config.getHttpReadTimeoutMs());
+    }
+
 
     /**
      * 作用：申请退款接口
@@ -123,6 +133,27 @@ public class WeixinPayService {
      */
     public Map<String, String> refundQuery(Map<String, String> reqData) throws Exception {
         return this.refundQuery(reqData, this.config.getHttpConnectTimeoutMs(), this.config.getHttpReadTimeoutMs());
+    }
+
+
+    /**
+     * 作用：关闭订单
+     * @param reqData 请求数据
+     * @param connectTimeoutMs 连接超时时间，单位是毫秒
+     * @param readTimeoutMs 读超时时间，单位是毫秒
+     * @return API返回数据
+     * @throws Exception
+     */
+    public Map<String, String> closeOrder(Map<String, String> reqData,  int connectTimeoutMs, int readTimeoutMs) throws Exception {
+        String url;
+        if (this.useSandbox) {
+            url = WXPayConstants.SANDBOX_CLOSEORDER_URL_SUFFIX;
+        }
+        else {
+            url = WXPayConstants.CLOSEORDER_URL_SUFFIX;
+        }
+        String respXml = this.sendRequest(WXPayConstants.DOMAIN_API,url, this.fillRequestData(reqData), connectTimeoutMs, readTimeoutMs,false);
+        return this.processResponseXml(respXml);
     }
 
 
