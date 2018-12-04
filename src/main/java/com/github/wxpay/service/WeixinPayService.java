@@ -82,14 +82,12 @@ public class WeixinPayService {
 
                 //通过判断，进行下一步逻辑操作
                 // TODO: 2018/12/2
-
             }
         } else {
             throw new Exception(String.format("Invalid sign value in XML: %s", xmlStr));
         }
         //成功逻辑
         // TODO: 2018/12/2
-
     }
 
 
@@ -123,6 +121,28 @@ public class WeixinPayService {
      */
     public Map<String, String> refund(Map<String, String> reqData) throws Exception {
         return this.refund(reqData, this.config.getHttpConnectTimeoutMs(), this.config.getHttpReadTimeoutMs());
+    }
+
+    /**
+     * 申请退款回调接口
+     * @param request
+     */
+    public void refundNofity(HttpServletRequest request) throws Exception {
+        String xmlStr = IOUtils.toString(request.getInputStream());
+        Map<String, String> map = XmlConvertUtils.xmlToMap(xmlStr);
+        System.out.println(map);
+
+        if (isResponseSignatureValid(map)) {
+            String return_code = map.get("return_code");
+            if(WXPayConstants.SUCCESS.equals(return_code)){//交易成功
+                //通过判断，进行下一步逻辑操作
+                // TODO: 2018/12/4
+            }
+        } else {
+            throw new Exception(String.format("Invalid sign value in XML: %s", xmlStr));
+        }
+        //成功逻辑
+        // TODO: 2018/12/2
     }
 
     /**
